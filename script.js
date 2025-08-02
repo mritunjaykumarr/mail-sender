@@ -1,8 +1,7 @@
 // public/script.js
 document.addEventListener('DOMContentLoaded', async () => {
     // IMPORTANT: Replace this with your Render deployment URL.
-    // Example: const API_BASE_URL = 'https://mail-sender-hwq9.onrender.com';
-    const API_BASE_URL = 'https://mail-sender-hwq9.onrender.com';
+    const API_BASE_URL = 'YOUR_RENDER_DEPLOYMENT_URL_HERE';
 
     // --- DOM Elements ---
     const googleSigninBtn = document.getElementById('google-signin-btn');
@@ -25,12 +24,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const sentCountSpan = document.getElementById('sent-count');
     const failedCountSpan = document.getElementById('failed-count');
 
-    // --- Modal Elements and Functions ---
     const customModal = document.getElementById('custom-modal');
     const modalTitle = customModal ? document.getElementById('modal-title') : null;
     const modalMessage = customModal ? document.getElementById('modal-message') : null;
     const modalCloseBtn = customModal ? document.getElementById('modal-close-btn') : null;
 
+    let quill; // Quill editor instance
+    let statusPollingInterval; // Interval for status polling
+
+    // --- Modal Functions (Replaces native alerts) ---
     function showMessage(title, message) {
         if (customModal && modalTitle && modalMessage) {
             modalTitle.textContent = title;
@@ -48,9 +50,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             customModal.classList.remove('flex');
         });
     }
-
-    let quill; // Quill editor instance
-    let statusPollingInterval; // Interval for status polling
 
     // --- Quill editor initialization ---
     const emailEditorElement = document.getElementById('email-body-editor');
@@ -72,9 +71,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // --- Authentication Logic ---
+
+    // Checks and updates the UI based on auth status
     async function checkAuthStatus() {
         try {
-            // Updated to use the full API base URL
             const response = await fetch(`${API_BASE_URL}/api/auth/status`);
             const data = await response.json();
 
@@ -84,6 +84,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (userEmailSpan) userEmailSpan.textContent = data.userEmail;
                 if (mailComposerSection) mailComposerSection.classList.remove('hidden');
                 if (authStatusMessage) authStatusMessage.textContent = 'You are signed in.';
+                // IMPORTANT: The session will now be kept alive by user interaction only.
+                // The status polling will only run during an active campaign.
             } else {
                 if (googleSigninBtn) googleSigninBtn.classList.remove('hidden');
                 if (userInfoDiv) userInfoDiv.classList.add('hidden');
@@ -98,17 +100,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // Redirects to the backend's OAuth endpoint
     if (googleSigninBtn) {
         googleSigninBtn.addEventListener('click', () => {
-            // Updated to use the full API base URL for redirection
             window.location.href = `${API_BASE_URL}/auth/google`;
         });
     }
 
+    // Handles logout request
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
             try {
-                // Updated to use the full API base URL
                 const response = await fetch(`${API_BASE_URL}/api/auth/logout`, { method: 'POST' });
                 const data = await response.json();
                 showMessage('Logout', data.message);
@@ -161,7 +163,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             formData.append('csvFile', csvFile);
 
             try {
-                // Updated to use the full API base URL
                 const response = await fetch(`${API_BASE_URL}/api/send-emails`, {
                     method: 'POST',
                     body: formData,
@@ -171,6 +172,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (response.ok) {
                     if (currentStatusMessage) currentStatusMessage.textContent = result.message;
                     if (progressDetails) progressDetails.classList.remove('hidden');
+                    // Start polling only after a campaign has been successfully initiated
                     statusPollingInterval = setInterval(pollStatus, 2000);
                 } else {
                     showMessage('Error', `Error: ${result.message}`);
@@ -187,7 +189,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Function to poll the backend for status updates
     async function pollStatus() {
         try {
-            // Updated to use the full API base URL
             const response = await fetch(`${API_BASE_URL}/api/status`);
             const status = await response.json();
 
@@ -198,13 +199,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (failedCountSpan) failedCountSpan.textContent = status.failed;
 
             if (!status.inProgress) {
-                clearInterval(statusPollingInterval);
+                clearInterval(statusPollingInterval); // Stop polling when the campaign is complete
                 resetSendingState();
                 showMessage('Sending Complete', 'Bulk email sending has finished.');
             }
         } catch (error) {
             console.error('Error polling status:', error);
-            clearInterval(statusPollingInterval);
+            clearInterval(statusPollingInterval); // Stop polling on error
             resetSendingState();
             showMessage('Error', 'Error getting sending status.');
         }
