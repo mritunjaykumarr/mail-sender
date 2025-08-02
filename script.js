@@ -1,10 +1,8 @@
 // public/script.js
 document.addEventListener('DOMContentLoaded', async () => {
-    // DOM Elements
-    const authSection = document.getElementById('auth-section');
+    // --- DOM Elements ---
     const googleSigninBtn = document.getElementById('google-signin-btn');
     const userInfoDiv = document.getElementById('user-info');
-    const userNameSpan = document.getElementById('user-name');
     const userEmailSpan = document.getElementById('user-email');
     const logoutBtn = document.getElementById('logout-btn');
     const authStatusMessage = document.getElementById('auth-status-message');
@@ -23,11 +21,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     const sentCountSpan = document.getElementById('sent-count');
     const failedCountSpan = document.getElementById('failed-count');
 
+    // Custom modal elements (assumes this HTML exists in your index.html)
+    const customModal = document.getElementById('custom-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalMessage = document.getElementById('modal-message');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+
     let quill; // Quill editor instance
-    let recipients = []; // Array to store parsed recipients
     let statusPollingInterval; // Interval for status polling
 
-    // Initialize Quill editor
+    // --- Modal Functions (Replaces native alerts) ---
+    function showModal(title, message) {
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+        customModal.classList.remove('hidden');
+        customModal.classList.add('flex');
+    }
+
+    modalCloseBtn.addEventListener('click', () => {
+        customModal.classList.add('hidden');
+        customModal.classList.remove('flex');
+    });
+
+    // --- Quill editor initialization ---
     quill = new Quill('#email-body-editor', {
         theme: 'snow',
         placeholder: 'Compose your email here...',
@@ -45,7 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Authentication Logic ---
 
-    // Check authentication status on page load
+    // Checks and updates the UI based on auth status
     async function checkAuthStatus() {
         try {
             const response = await fetch('/api/auth/status');
@@ -54,7 +70,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (data.isAuthenticated) {
                 googleSigninBtn.classList.add('hidden');
                 userInfoDiv.classList.remove('hidden');
-                userNameSpan.textContent = data.userEmail || 'Authenticated User'; // Backend doesn't send name in this demo
                 userEmailSpan.textContent = data.userEmail;
                 mailComposerSection.classList.remove('hidden');
                 authStatusMessage.textContent = 'You are signed in.';
@@ -63,92 +78,60 @@ document.addEventListener('DOMContentLoaded', async () => {
                 userInfoDiv.classList.add('hidden');
                 mailComposerSection.classList.add('hidden');
                 authStatusMessage.textContent = 'Please sign in with Google to continue.';
+                // Reset all UI to default if not authenticated
+                resetUI();
             }
         } catch (error) {
             console.error('Error checking auth status:', error);
             authStatusMessage.textContent = 'Could not check authentication status.';
+            resetUI();
         }
     }
 
-    // Handle Google Sign-in button click
+    // Redirects to the backend's OAuth endpoint
     googleSigninBtn.addEventListener('click', () => {
-        // Redirect to backend's OAuth initiation endpoint
         window.location.href = '/auth/google';
     });
 
-    // Handle Logout button click
+    // Handles logout request
     logoutBtn.addEventListener('click', async () => {
         try {
             const response = await fetch('/api/auth/logout', { method: 'POST' });
             const data = await response.json();
-            alert(data.message); // Use a custom modal in production
-            checkAuthStatus(); // Update UI after logout
-            resetUI();
+            showModal('Logout', data.message);
+            await checkAuthStatus(); // Update UI after logout
         } catch (error) {
             console.error('Error during logout:', error);
-            alert('Logout failed.'); // Use a custom modal in production
+            showModal('Logout Failed', 'An error occurred during logout. Please try again.');
         }
     });
 
-    // --- CSV File Handling ---
-
+    // --- File Handling & Validation ---
+    // This now only updates the UI to show the selected filename
     csvFileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const text = e.target.result;
-                parseCSV(text);
-            };
-            reader.readAsText(file);
+            recipientCountSpan.textContent = `File selected: ${file.name}`;
         } else {
-            recipients = [];
             recipientCountSpan.textContent = '';
         }
     });
 
-    function parseCSV(csvText) {
-        recipients = []; // Clear previous recipients
-        const lines = csvText.split('\n').filter(line => line.trim() !== '');
-        lines.forEach(line => {
-            // Simple parsing: assume each line is an email or the first comma-separated value
-            const potentialEmail = line.split(',')[0].trim();
-            if (validateEmail(potentialEmail)) {
-                recipients.push(potentialEmail);
-            }
-        });
-        recipientCountSpan.textContent = `${recipients.length} recipients loaded.`;
-        if (recipients.length === 0) {
-            alert('No valid email addresses found in the CSV file.'); // Use a custom modal
-        }
-    }
-
-    // Basic email validation regex
-    function validateEmail(email) {
-        return String(email)
-            .toLowerCase()
-            .match(
-                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-            );
-    }
-
     // --- Email Sending Logic ---
-
     sendEmailsBtn.addEventListener('click', async () => {
         const subject = subjectInput.value.trim();
-        const emailBody = quill.root.innerHTML.trim(); // Get HTML content from Quill
+        const emailBody = quill.root.innerHTML.trim();
+        const csvFile = csvFileInput.files[0];
 
         if (!subject) {
-            alert('Please enter a subject.');
-            return;
+            return showModal('Validation Error', 'Please enter a subject.');
         }
-        if (!emailBody || emailBody === '<p><br></p>') { // Check for empty Quill content
-            alert('Please compose your email body.');
-            return;
+        if (!emailBody || emailBody === '<p><br></p>') {
+            return showModal('Validation Error', 'Please compose your email body.');
         }
-        if (recipients.length === 0) {
-            alert('Please upload a CSV file with recipients.');
-            return;
+        // The server will handle validation of the CSV content. We only check if a file is attached.
+        if (!csvFile) {
+            return showModal('Validation Error', 'Please upload a CSV file with recipients.');
         }
 
         // Disable button and show loading
@@ -156,12 +139,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         sendEmailsBtn.textContent = 'Initiating Send...';
         statusResultsSection.classList.remove('hidden');
         currentStatusMessage.textContent = 'Initiating bulk email send...';
-        progressDetails.classList.add('hidden'); // Hide progress until backend confirms
+        progressDetails.classList.add('hidden');
 
         const formData = new FormData();
         formData.append('subject', subject);
         formData.append('emailBody', emailBody);
-        formData.append('csvFile', csvFileInput.files[0]);
+        formData.append('csvFile', csvFile);
 
         try {
             const response = await fetch('/api/send-emails', {
@@ -174,14 +157,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 currentStatusMessage.textContent = result.message;
                 progressDetails.classList.remove('hidden');
                 // Start polling for status updates
-                statusPollingInterval = setInterval(pollStatus, 2000); // Poll every 2 seconds
+                statusPollingInterval = setInterval(pollStatus, 2000);
             } else {
-                alert(`Error: ${result.message}`);
+                showModal('Error', `Error: ${result.message}`);
                 resetSendingState();
             }
         } catch (error) {
             console.error('Error sending emails:', error);
-            alert('An error occurred while trying to send emails.');
+            showModal('Error', 'An error occurred while trying to send emails.');
             resetSendingState();
         }
     });
@@ -201,13 +184,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!status.inProgress) {
                 clearInterval(statusPollingInterval); // Stop polling
                 resetSendingState();
-                alert('Bulk email sending completed!'); // Use custom modal
+                showModal('Sending Complete', 'Bulk email sending has finished.');
             }
         } catch (error) {
             console.error('Error polling status:', error);
             clearInterval(statusPollingInterval); // Stop polling on error
             resetSendingState();
-            alert('Error getting sending status.'); // Use custom modal
+            showModal('Error', 'Error getting sending status.');
         }
     }
 
@@ -215,17 +198,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     function resetSendingState() {
         sendEmailsBtn.disabled = false;
         sendEmailsBtn.textContent = 'Send Bulk Mail';
-        // Keep status results visible after completion, but hide progress details if not in progress
-        if (!emailCampaignStatus.inProgress) { // Assuming emailCampaignStatus is accessible or re-fetched
-            progressDetails.classList.add('hidden');
-        }
     }
 
+    // Reset all input fields and UI state
     function resetUI() {
         subjectInput.value = '';
         quill.setContents([{ insert: '\n' }]); // Clears Quill editor
         csvFileInput.value = ''; // Clear file input
-        recipients = [];
         recipientCountSpan.textContent = '';
         statusResultsSection.classList.add('hidden');
         currentStatusMessage.textContent = '';
