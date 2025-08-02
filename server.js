@@ -6,7 +6,7 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors'); // Import the cors middleware
-const { google } = require('googleapis');
+const { google } from require('googleapis');
 const multer = require('multer');
 const csv = require('csv-parser');
 const { Readable } = require('stream');
@@ -22,8 +22,8 @@ if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !proce
 }
 
 // --- CORS Middleware ---
-// IMPORTANT: Replace 'YOUR_VERCEL_FRONTEND_URL' with your actual Vercel deployment URL.
-const FRONTEND_URL = process.env.FRONTEND_URL || 'YOUR_VERCEL_FRONTEND_URL';
+// IMPORTANT: Replaced the placeholder with your actual Vercel deployment URL.
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://mail-sender-ecru.vercel.app';
 app.use(cors({
     origin: FRONTEND_URL,
     credentials: true,
@@ -81,7 +81,8 @@ app.get('/oauth2callback', async (req, res) => {
     };
 
     // Redirect back to the frontend application after successful authentication
-    res.redirect(`${FRONTEND_URL}`);
+    // This is now fixed to redirect to the root path of the frontend
+    res.redirect(FRONTEND_URL);
   } catch (error) {
     console.error('OAuth callback error:', error.message);
     res.status(500).send('Authentication failed.');
