@@ -21,8 +21,11 @@ if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !proce
 }
 
 // --- Session Middleware ---
+// Using a placeholder secret. You must replace this with a secure, random string.
+const sessionSecret = process.env.SESSION_SECRET || 'YOUR_GENERATED_SECURE_SESSION_SECRET';
+
 app.use(session({
-    secret: process.env.SESSION_SECRET, // A strong secret for session signing
+    secret: sessionSecret, // A strong secret for session signing
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -138,7 +141,7 @@ app.post('/api/send-emails', upload.single('csvFile'), async (req, res) => {
       if (recipients.length === 0) {
         return res.status(400).json({ message: 'No valid recipients found.' });
       }
-      
+
       // Store campaign status in the user's session
       req.session.emailCampaignStatus = {
         total: recipients.length,
