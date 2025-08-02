@@ -1,188 +1,156 @@
-// server.js
-require('dotenv').config();
+// public/script.js
+import confetti from "https://cdn.skypack.dev/canvas-confetti";
 
-const express = require('express');
-const { google } = require('googleapis');
-const multer = require('multer');
-const csv = require('csv-parser');
-const { Readable } = require('stream');
+const API_BASE_URL = "https://mail-sender-hwq9.onrender.com";
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+document.addEventListener("DOMContentLoaded", async () => {
+  const googleSigninBtn = document.getElementById("google-signin-btn");
+  const logoutBtn = document.getElementById("logout-btn");
+  const authSection = document.getElementById("auth-section");
+  const userInfoDiv = document.getElementById("user-info");
+  const userNameSpan = document.getElementById("user-name");
+  const userEmailSpan = document.getElementById("user-email");
+  const authStatusMessage = document.getElementById("auth-status-message");
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
-
-const oauth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.REDIRECT_URI
-);
-
-let userTokens = {};
-let emailCampaignStatus = {
-  total: 0,
-  sent: 0,
-  failed: 0,
-  inProgress: false,
-  message: '',
-};
-
-// --- Google OAuth Routes ---
-
-app.get('/auth/google', (req, res) => {
-  const scopes = [
-    'https://www.googleapis.com/auth/userinfo.email',
-    'https://www.googleapis.com/auth/userinfo.profile',
-    'https://www.googleapis.com/auth/gmail.send',
-  ];
-  const authUrl = oauth2Client.generateAuthUrl({
-    access_type: 'offline',
-    scope: scopes,
-    prompt: 'consent',
+  const subjectInput = document.getElementById("subject");
+  const emailBodyEditor = new Quill("#email-body-editor", {
+    theme: "snow",
   });
-  res.redirect(authUrl);
-});
 
-app.get('/oauth2callback', async (req, res) => {
-  const { code } = req.query;
-  try {
-    const { tokens } = await oauth2Client.getToken(code);
-    oauth2Client.setCredentials(tokens);
+  const csvFileInput = document.getElementById("csv-file");
+  const sendEmailsBtn = document.getElementById("send-emails-btn");
+  const recipientCountSpan = document.getElementById("recipient-count");
 
-    const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
-    const userInfo = await oauth2.userinfo.get();
-    const userId = userInfo.data.id;
+  const statusResultsSection = document.getElementById("status-results-section");
+  const currentStatusMessage = document.getElementById("current-status-message");
+  const progressDetails = document.getElementById("progress-details");
+  const processedCount = document.getElementById("processed-count");
+  const totalCount = document.getElementById("total-count");
+  const sentCount = document.getElementById("sent-count");
+  const failedCount = document.getElementById("failed-count");
 
-    userTokens[userId] = {
-      ...tokens,
-      email: userInfo.data.email,
+  const mailComposerSection = document.getElementById("mail-composer-section");
+
+  // OAuth flow
+  googleSigninBtn.addEventListener("click", () => {
+    window.location.href = `${API_BASE_URL}/auth/google`;
+  });
+
+  logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("user");
+    location.reload();
+  });
+
+  // Handle OAuth redirect
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get("code");
+
+  if (code && !localStorage.getItem("user")) {
+    authStatusMessage.innerText = "Authenticating...";
+    fetch(`${API_BASE_URL}/auth/google/callback?code=${code}`, {
+      method: "GET",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        localStorage.setItem("user", JSON.stringify(data));
+        window.history.replaceState({}, document.title, "/");
+        location.reload();
+      })
+      .catch(() => {
+        authStatusMessage.innerText = "Authentication failed!";
+      });
+  }
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (user) {
+    userInfoDiv.classList.remove("hidden");
+    userNameSpan.innerText = user.name;
+    userEmailSpan.innerText = user.email;
+    mailComposerSection.classList.remove("hidden");
+    googleSigninBtn.classList.add("hidden");
+  }
+
+  let recipients = [];
+
+  csvFileInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const lines = e.target.result.split("\n");
+      recipients = lines
+        .map((line) => line.trim())
+        .filter((email) => email.length > 0);
+      recipientCountSpan.innerText = `${recipients.length} recipients loaded`;
     };
-
-    res.redirect('/');
-  } catch (error) {
-    console.error('OAuth callback error:', error.message);
-    res.status(500).send('Authentication failed.');
-  }
-});
-
-app.get('/api/auth/status', (req, res) => {
-  const isAuthenticated = Object.keys(userTokens).length > 0;
-  const userEmail = isAuthenticated ? Object.values(userTokens)[0].email : null;
-  res.json({ isAuthenticated, userEmail });
-});
-
-app.post('/api/auth/logout', (req, res) => {
-  userTokens = {};
-  res.json({ message: 'Logged out successfully.' });
-});
-
-// --- File Upload and Email Sending ---
-
-const upload = multer();
-
-app.post('/api/send-emails', upload.single('csvFile'), async (req, res) => {
-  const userId = Object.keys(userTokens)[0];
-  if (!userId || !userTokens[userId]) {
-    return res.status(401).json({ message: 'User not authenticated.' });
-  }
-
-  oauth2Client.setCredentials(userTokens[userId]);
-
-  const { subject, emailBody } = req.body;
-  if (!subject || !emailBody || !req.file) {
-    return res.status(400).json({ message: 'Missing required fields.' });
-  }
-
-  // Parse recipients
-  const recipients = [];
-  const csvStream = Readable.from(req.file.buffer.toString());
-
-  csvStream
-    .pipe(csv())
-    .on('data', (row) => {
-      const email = row.email || Object.values(row)[0];
-      if (email && validateEmail(email.trim())) {
-        recipients.push(email.trim());
-      }
-    })
-    .on('end', async () => {
-      if (recipients.length === 0) {
-        return res.status(400).json({ message: 'No valid recipients found.' });
-      }
-
-      emailCampaignStatus = {
-        total: recipients.length,
-        sent: 0,
-        failed: 0,
-        inProgress: true,
-        message: `Sending ${recipients.length} emails...`,
-      };
-
-      res.json({ message: `Started sending ${recipients.length} emails.` });
-
-      for (let i = 0; i < recipients.length; i++) {
-        const to = recipients[i];
-        try {
-          await new Promise((resolve) => setTimeout(resolve, 500)); // Delay
-          await sendEmail(oauth2Client, to, subject, emailBody);
-          emailCampaignStatus.sent++;
-        } catch (err) {
-          console.error(`Failed to send to ${to}:`, err.message);
-          emailCampaignStatus.failed++;
-        }
-
-        emailCampaignStatus.message = `Processed ${emailCampaignStatus.sent + emailCampaignStatus.failed} of ${emailCampaignStatus.total}`;
-      }
-
-      emailCampaignStatus.inProgress = false;
-      emailCampaignStatus.message = 'Bulk email sending completed.';
-    })
-    .on('error', (err) => {
-      console.error('CSV parsing error:', err.message);
-      res.status(500).json({ message: 'Error parsing CSV file.' });
-    });
-});
-
-app.get('/api/status', (req, res) => {
-  res.json(emailCampaignStatus);
-});
-
-// --- Helper Functions ---
-
-function validateEmail(email) {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return re.test(email);
-}
-
-async function sendEmail(auth, to, subject, htmlBody) {
-  const gmail = google.gmail({ version: 'v1', auth });
-
-  const rawMessage = [
-    `To: ${to}`,
-    `Subject: ${subject}`,
-    'MIME-Version: 1.0',
-    'Content-Type: text/html; charset="UTF-8"',
-    '',
-    htmlBody,
-  ].join('\n');
-
-  const encodedMessage = Buffer.from(rawMessage)
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-
-  await gmail.users.messages.send({
-    userId: 'me',
-    requestBody: {
-      raw: encodedMessage,
-    },
+    reader.readAsText(file);
   });
-}
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server listening at http://localhost:${PORT}`);
+  sendEmailsBtn.addEventListener("click", async () => {
+    const subject = subjectInput.value.trim();
+    const body = emailBodyEditor.root.innerHTML;
+
+    if (!subject || !body || recipients.length === 0) {
+      alert("Please fill subject, body, and upload CSV.");
+      return;
+    }
+
+    sendEmailsBtn.disabled = true;
+    statusResultsSection.classList.remove("hidden");
+    progressDetails.classList.remove("hidden");
+    currentStatusMessage.innerText = "Sending emails...";
+
+    processedCount.innerText = "0";
+    totalCount.innerText = recipients.length;
+    sentCount.innerText = "0";
+    failedCount.innerText = "0";
+
+    let sent = 0;
+    let failed = 0;
+
+    for (let i = 0; i < recipients.length; i++) {
+      const email = recipients[i];
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/send-emails`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            to: email,
+            subject,
+            body,
+            access_token: user.access_token,
+          }),
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+          sent++;
+          sentCount.innerText = sent;
+        } else {
+          failed++;
+          failedCount.innerText = failed;
+        }
+      } catch (err) {
+        failed++;
+        failedCount.innerText = failed;
+      }
+
+      processedCount.innerText = i + 1;
+    }
+
+    currentStatusMessage.innerText = `Emails sent: ${sent}, Failed: ${failed}`;
+    sendEmailsBtn.disabled = false;
+
+    if (sent > 0) {
+      confetti({
+        particleCount: 200,
+        spread: 100,
+        origin: { y: 0.6 },
+      });
+    }
+  });
 });
