@@ -1,6 +1,6 @@
 // public/script.js
 document.addEventListener('DOMContentLoaded', async () => {
-    // IMPORTANT: Replace this with your Render deployment URL.
+    // IMPORTANT: Replaced the placeholder with your Render deployment URL.
     const API_BASE_URL = 'https://mail-sender-hwq9.onrender.com';
 
     // --- DOM Elements ---
@@ -239,4 +239,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initial check on page load
     checkAuthStatus();
 });
-
