@@ -1,5 +1,9 @@
 // public/script.js
 document.addEventListener('DOMContentLoaded', async () => {
+    // IMPORTANT: Replace this with your Render deployment URL.
+    // Example: const API_BASE_URL = 'https://mail-sender-hwq9.onrender.com';
+    const API_BASE_URL = 'https://mail-sender-hwq9.onrender.com';
+
     // --- DOM Elements ---
     const googleSigninBtn = document.getElementById('google-signin-btn');
     const userInfoDiv = document.getElementById('user-info');
@@ -22,13 +26,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const failedCountSpan = document.getElementById('failed-count');
 
     // --- Modal Elements and Functions ---
-    // Safely get modal elements, checking if they exist
     const customModal = document.getElementById('custom-modal');
     const modalTitle = customModal ? document.getElementById('modal-title') : null;
     const modalMessage = customModal ? document.getElementById('modal-message') : null;
     const modalCloseBtn = customModal ? document.getElementById('modal-close-btn') : null;
 
-    // Use a custom modal if elements exist, otherwise fall back to alert()
     function showMessage(title, message) {
         if (customModal && modalTitle && modalMessage) {
             modalTitle.textContent = title;
@@ -51,7 +53,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     let statusPollingInterval; // Interval for status polling
 
     // --- Quill editor initialization ---
-    // Check if the Quill editor element exists before initializing
     const emailEditorElement = document.getElementById('email-body-editor');
     if (emailEditorElement) {
         quill = new Quill('#email-body-editor', {
@@ -71,11 +72,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // --- Authentication Logic ---
-
-    // Checks and updates the UI based on auth status
     async function checkAuthStatus() {
         try {
-            const response = await fetch('/api/auth/status');
+            // Updated to use the full API base URL
+            const response = await fetch(`${API_BASE_URL}/api/auth/status`);
             const data = await response.json();
 
             if (data.isAuthenticated) {
@@ -98,18 +98,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Redirects to the backend's OAuth endpoint
     if (googleSigninBtn) {
         googleSigninBtn.addEventListener('click', () => {
-            window.location.href = '/auth/google';
+            // Updated to use the full API base URL for redirection
+            window.location.href = `${API_BASE_URL}/auth/google`;
         });
     }
 
-    // Handles logout request
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
             try {
-                const response = await fetch('/api/auth/logout', { method: 'POST' });
+                // Updated to use the full API base URL
+                const response = await fetch(`${API_BASE_URL}/api/auth/logout`, { method: 'POST' });
                 const data = await response.json();
                 showMessage('Logout', data.message);
                 await checkAuthStatus();
@@ -149,7 +149,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return showMessage('Validation Error', 'Please upload a CSV file with recipients.');
             }
 
-            // Disable button and show loading
             sendEmailsBtn.disabled = true;
             sendEmailsBtn.textContent = 'Initiating Send...';
             if (statusResultsSection) statusResultsSection.classList.remove('hidden');
@@ -162,7 +161,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             formData.append('csvFile', csvFile);
 
             try {
-                const response = await fetch('/api/send-emails', {
+                // Updated to use the full API base URL
+                const response = await fetch(`${API_BASE_URL}/api/send-emails`, {
                     method: 'POST',
                     body: formData,
                 });
@@ -187,7 +187,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Function to poll the backend for status updates
     async function pollStatus() {
         try {
-            const response = await fetch('/api/status');
+            // Updated to use the full API base URL
+            const response = await fetch(`${API_BASE_URL}/api/status`);
             const status = await response.json();
 
             if (currentStatusMessage) currentStatusMessage.textContent = status.message;
