@@ -6,7 +6,7 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors'); // Import the cors middleware
-const { google } from require('googleapis');
+const { google } = require('googleapis');
 const multer = require('multer');
 const csv = require('csv-parser');
 const { Readable } = require('stream');
