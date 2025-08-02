@@ -21,6 +21,7 @@ if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !proce
 }
 
 // --- Session Middleware ---
+// Using a placeholder secret. You must replace this with a secure, random string.
 const sessionSecret = process.env.SESSION_SECRET || 'YOUR_GENERATED_SECURE_SESSION_SECRET';
 
 app.use(session({
@@ -28,9 +29,9 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: 'auto',
+        secure: 'auto', // 'auto' sets secure flag in production but not on http locally
         sameSite: 'lax',
-        maxAge: 8 * 60 * 1000 // Session expires after 8 minutes of inactivity
+        maxAge: 24 * 60 * 60 * 1000 // Session lasts for 24 hours
     }
 }));
 
