@@ -1,28 +1,38 @@
 // server.js
-// IMPORTANT: To resolve the 'Error: Cannot find module 'cors'', you must
-// install it by running `npm install cors` in your project's directory.
-// Make sure 'cors' is listed in your package.json file.
 require('dotenv').config();
 
 const express = require('express');
-const cors = require('cors'); // Import the cors middleware
+const cors = require('cors');
 const { google } = require('googleapis');
 const multer = require('multer');
 const csv = require('csv-parser');
 const { Readable } = require('stream');
+// Add the express-session library for per-user session management
+const session = require('express-session');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // IMPORTANT: Validate environment variables before initializing the client
-if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.GOOGLE_REDIRECT_URI) {
-    console.error('ERROR: Missing required Google OAuth environment variables.');
-    console.error('Please ensure GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REDIRECT_URI are set.');
+if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.GOOGLE_REDIRECT_URI || !process.env.SESSION_SECRET) {
+    console.error('ERROR: Missing required environment variables.');
+    console.error('Please ensure GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, and SESSION_SECRET are set.');
     process.exit(1);
 }
 
+// --- Session Middleware ---
+app.use(session({
+    secret: process.env.SESSION_SECRET, // A strong secret for session signing
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: 'auto', // 'auto' sets secure flag in production but not on http locally
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000 // Session lasts for 24 hours
+    }
+}));
+
 // --- CORS Middleware ---
-// IMPORTANT: Replaced the placeholder with your actual Vercel deployment URL.
 const FRONTEND_URL = process.env.FRONTEND_URL || 'https://mail-sender-ecru.vercel.app';
 app.use(cors({
     origin: FRONTEND_URL,
@@ -39,15 +49,6 @@ const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_SECRET,
   process.env.GOOGLE_REDIRECT_URI
 );
-
-let userTokens = {};
-let emailCampaignStatus = {
-  total: 0,
-  sent: 0,
-  failed: 0,
-  inProgress: false,
-  message: '',
-};
 
 // --- Google OAuth Routes ---
 
@@ -73,15 +74,14 @@ app.get('/oauth2callback', async (req, res) => {
 
     const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
     const userInfo = await oauth2.userinfo.get();
-    const userId = userInfo.data.id;
 
-    userTokens[userId] = {
-      ...tokens,
+    // Store user info and tokens in the session object, not a global variable
+    req.session.user = {
+      tokens: tokens,
       email: userInfo.data.email,
+      id: userInfo.data.id,
     };
 
-    // Redirect back to the frontend application after successful authentication
-    // This is now fixed to redirect to the root path of the frontend
     res.redirect(FRONTEND_URL);
   } catch (error) {
     console.error('OAuth callback error:', error.message);
@@ -90,14 +90,19 @@ app.get('/oauth2callback', async (req, res) => {
 });
 
 app.get('/api/auth/status', (req, res) => {
-  const isAuthenticated = Object.keys(userTokens).length > 0;
-  const userEmail = isAuthenticated ? Object.values(userTokens)[0].email : null;
+  const isAuthenticated = !!req.session.user;
+  const userEmail = isAuthenticated ? req.session.user.email : null;
   res.json({ isAuthenticated, userEmail });
 });
 
 app.post('/api/auth/logout', (req, res) => {
-  userTokens = {};
-  res.json({ message: 'Logged out successfully.' });
+  // Destroy the session to log out the user
+  req.session.destroy(err => {
+      if (err) {
+          return res.status(500).json({ message: 'Logout failed.' });
+      }
+      res.json({ message: 'Logged out successfully.' });
+  });
 });
 
 // --- File Upload and Email Sending ---
@@ -105,12 +110,12 @@ app.post('/api/auth/logout', (req, res) => {
 const upload = multer();
 
 app.post('/api/send-emails', upload.single('csvFile'), async (req, res) => {
-  const userId = Object.keys(userTokens)[0];
-  if (!userId || !userTokens[userId]) {
+  // Check for user in the session
+  if (!req.session.user || !req.session.user.tokens) {
     return res.status(401).json({ message: 'User not authenticated.' });
   }
 
-  oauth2Client.setCredentials(userTokens[userId]);
+  oauth2Client.setCredentials(req.session.user.tokens);
 
   const { subject, emailBody } = req.body;
   if (!subject || !emailBody || !req.file) {
@@ -133,8 +138,9 @@ app.post('/api/send-emails', upload.single('csvFile'), async (req, res) => {
       if (recipients.length === 0) {
         return res.status(400).json({ message: 'No valid recipients found.' });
       }
-
-      emailCampaignStatus = {
+      
+      // Store campaign status in the user's session
+      req.session.emailCampaignStatus = {
         total: recipients.length,
         sent: 0,
         failed: 0,
@@ -147,19 +153,21 @@ app.post('/api/send-emails', upload.single('csvFile'), async (req, res) => {
       for (let i = 0; i < recipients.length; i++) {
         const to = recipients[i];
         try {
-          await new Promise((resolve) => setTimeout(resolve, 500)); // Delay
+          await new Promise((resolve) => setTimeout(resolve, 500));
           await sendEmail(oauth2Client, to, subject, emailBody);
-          emailCampaignStatus.sent++;
+          // Update campaign status in the session
+          req.session.emailCampaignStatus.sent++;
         } catch (err) {
           console.error(`Failed to send to ${to}:`, err.message);
-          emailCampaignStatus.failed++;
+          // Update campaign status in the session
+          req.session.emailCampaignStatus.failed++;
         }
 
-        emailCampaignStatus.message = `Processed ${emailCampaignStatus.sent + emailCampaignStatus.failed} of ${emailCampaignStatus.total}`;
+        req.session.emailCampaignStatus.message = `Processed ${req.session.emailCampaignStatus.sent + req.session.emailCampaignStatus.failed} of ${req.session.emailCampaignStatus.total}`;
       }
 
-      emailCampaignStatus.inProgress = false;
-      emailCampaignStatus.message = 'Bulk email sending completed.';
+      req.session.emailCampaignStatus.inProgress = false;
+      req.session.emailCampaignStatus.message = 'Bulk email sending completed.';
     })
     .on('error', (err) => {
       console.error('CSV parsing error:', err.message);
@@ -168,7 +176,15 @@ app.post('/api/send-emails', upload.single('csvFile'), async (req, res) => {
 });
 
 app.get('/api/status', (req, res) => {
-  res.json(emailCampaignStatus);
+    // Return campaign status from the user's session
+    const status = req.session.emailCampaignStatus || {
+        total: 0,
+        sent: 0,
+        failed: 0,
+        inProgress: false,
+        message: 'No email campaign in progress.',
+    };
+    res.json(status);
 });
 
 // --- Helper Functions ---
