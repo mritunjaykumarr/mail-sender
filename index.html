@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bulk Mail Sender</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body class="font-inter bg-gradient-to-br from-green-200 via-blue-100 to-purple-200 flex items-center justify-center min-h-screen p-4 transition-all duration-1000 ease-in-out">
+  <div class="container bg-white p-8 rounded-2xl shadow-2xl w-full max-w-4xl transform transition-all duration-700 hover:scale-[1.01]">
+    <h1 class="text-4xl font-bold text-center text-gray-800 mb-6 animate-pulse">Bulk Mail Sender</h1>
+
+    <!-- Auth Section -->
+    <div id="auth-section" class="mb-6 border-b pb-4 border-gray-300 text-center animate-fadeIn">
+      <button id="google-signin-btn" class="google-button transition hover:scale-105 hover:bg-red-100">
+        Sign in with Google
+      </button>
+      <div id="user-info" class="hidden flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <!-- <img id="user-pic" src="" alt="Profile Pic" class="w-10 h-10 rounded-full border shadow" /> -->
+          <p class="text-lg text-gray-700">
+            Welcome, <span id="user-name" class="font-semibold"></span> (<span id="user-email"></span>)
+          </p>
+        </div>
+        <button id="logout-btn" class="btn btn-red">Logout</button>
+      </div>
+      <p id="auth-status-message" class="status-message mt-2"></p>
+    </div>
+
+    <!-- Mail Composer Section -->
+    <div id="mail-composer-section" class="hidden animate-fadeIn">
+      <div class="mb-6">
+        <label for="subject" class="label">Subject:</label>
+        <input type="text" id="subject" class="input" placeholder="Enter email subject"/>
+      </div>
+
+      <div class="mb-6">
+        <label for="email-body-editor" class="label">Email Body:</label>
+        <div id="email-body-editor" class="quill-editor"></div>
+      </div>
+
+      <!-- CSV Upload Section -->
+      <div class="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <label for="csv-file" class="label">Upload Recipient CSV:</label>
+        <input type="file" id="csv-file" accept=".csv" class="file-input" />
+        <span id="recipient-count" class="text-gray-600 text-sm mt-2 sm:mt-0"></span>
+      </div>
+
+      <!-- Send Button -->
+      <div class="flex justify-center mb-6">
+        <button id="send-emails-btn" class="btn btn-green glow-on-hover transition-transform hover:scale-110">
+          Send Bulk Mail
+        </button>
+      </div>
+
+      <!-- Status and Results Section -->
+      <div id="status-results-section" class="hidden mt-6 p-4 bg-blue-50 border border-blue-200 text-blue-800 rounded-md text-center animate-fadeIn">
+        <p id="current-status-message" class="font-semibold animate-bounce"></p>
+        <div id="progress-details" class="hidden mt-2 text-sm">
+          <p>Processed: <span id="processed-count">0</span> / <span id="total-count">0</span></p>
+          <p>Successfully "Sent": <span id="sent-count" class="font-bold text-green-700">0</span></p>
+          <p>"Failed": <span id="failed-count" class="font-bold text-red-700">0</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quill.js -->
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
