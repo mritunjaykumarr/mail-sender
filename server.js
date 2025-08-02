@@ -1,4 +1,7 @@
 // server.js
+// IMPORTANT: To resolve the 'Error: Cannot find module 'cors'', you must
+// install it by running `npm install cors` in your project's directory.
+// Make sure 'cors' is listed in your package.json file.
 require('dotenv').config();
 
 const express = require('express');
