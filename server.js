@@ -2,6 +2,7 @@
 require('dotenv').config();
 
 const express = require('express');
+const cors = require('cors'); // Import the cors middleware
 const { google } = require('googleapis');
 const multer = require('multer');
 const csv = require('csv-parser');
@@ -10,12 +11,26 @@ const { Readable } = require('stream');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// IMPORTANT: Validate environment variables before initializing the client
+if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.GOOGLE_REDIRECT_URI) {
+    console.error('ERROR: Missing required Google OAuth environment variables.');
+    console.error('Please ensure GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REDIRECT_URI are set.');
+    process.exit(1);
+}
+
+// --- CORS Middleware ---
+// IMPORTANT: Replace 'YOUR_VERCEL_FRONTEND_URL' with your actual Vercel deployment URL.
+const FRONTEND_URL = process.env.FRONTEND_URL || 'YOUR_VERCEL_FRONTEND_URL';
+app.use(cors({
+    origin: FRONTEND_URL,
+    credentials: true,
+}));
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// IMPORTANT: Updated the redirect URI variable name to match the provided deployment configuration
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
@@ -62,7 +77,8 @@ app.get('/oauth2callback', async (req, res) => {
       email: userInfo.data.email,
     };
 
-    res.redirect('/');
+    // Redirect back to the frontend application after successful authentication
+    res.redirect(`${FRONTEND_URL}`);
   } catch (error) {
     console.error('OAuth callback error:', error.message);
     res.status(500).send('Authentication failed.');
