@@ -31,13 +31,11 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
-  /* Removed overflow: hidden; to allow scrolling */
   gap: 2rem;
   padding: 2rem 1rem;
 }
 
 .background-container {
-  /* Changed position from fixed to absolute to allow it to scroll with the page */
   position: absolute; 
   top: 0;
   left: 0;
@@ -110,6 +108,52 @@ body {
     border: 1px solid #ef4444;
 }
 
+/* ==================== New Step-by-Step Styling ==================== */
+.step-card {
+    background: rgba(255, 255, 255, 0.4);
+    padding: 1.5rem;
+    border-radius: 15px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+    position: relative;
+    padding-left: 5rem;
+}
+
+.step-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    margin-bottom: 0.5rem;
+}
+
+.step-instruction {
+    font-size: 0.95rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.step-card::before {
+    content: '';
+    position: absolute;
+    left: 1.5rem;
+    top: 1.5rem;
+    height: 2.5rem;
+    width: 2.5rem;
+    background: var(--secondary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 800;
+    font-size: 1.2rem;
+}
+
+.step-card:nth-of-type(2)::before { content: '1'; }
+.step-card:nth-of-type(3)::before { content: '2'; }
+.step-card:nth-of-type(4)::before { content: '3'; }
+
+
 /* ==================== Layout & Components ==================== */
 .clock-container {
   display: flex;
@@ -169,9 +213,8 @@ body {
 }
 
 .auth-section, .mail-composer-section {
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  margin-top: 1rem;
 }
 
 .auth-section {
