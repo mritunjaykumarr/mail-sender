@@ -10,6 +10,32 @@ body {
     max-width: 960px;
     margin: 0 auto;
 }
+
+.clock-container {
+  text-align: center;
+  color: #fff;
+}
+
+.clock {
+  font-size: 4rem;
+  margin-top: 10px;
+  padding: 20px 40px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), 0 0 40px rgba(0, 255, 255, 0.2);
+  animation: glow 1.5s infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+  }
+  to {
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+  }
+}
+
 /* public/style.css */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
@@ -294,4 +320,5 @@ body {
     .sm\:mb-0 { margin-bottom: 0; }
     .sm\:mt-0 { margin-top: 0; }
     .sm\:w-auto { width: auto; }
+
 }
