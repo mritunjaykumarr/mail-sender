@@ -477,33 +477,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     checkAuthStatus();
 
 });
-document.addEventListener('DOMContentLoaded', async () => {
-  // ... All your existing code above ...
+function updateClocks() {
+  const now = new Date();
 
-  // === CLOCK SECTION START ===
-  function updateClock() {
-    const now = new Date();
+  // Digital clock
+  let hours = now.getHours();
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  const seconds = now.getSeconds().toString().padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12 || 12;
 
-    let hours = now.getHours();
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    const seconds = now.getSeconds().toString().padStart(2, '0');
-    const ampm = hours >= 12 ? 'PM' : 'AM';
+  const digitalTime = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+  document.getElementById('digital-clock').textContent = digitalTime;
 
-    hours = hours % 12 || 12; // convert to 12-hour format, 0 becomes 12
-    const timeString = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
+  // Analog clock
+  const secDeg = now.getSeconds() * 6;
+  const minDeg = now.getMinutes() * 6 + now.getSeconds() * 0.1;
+  const hourDeg = ((now.getHours() % 12) * 30) + (now.getMinutes() * 0.5);
 
-    const clockEl = document.getElementById('clock');
-    if (clockEl) {
-      clockEl.textContent = timeString;
-    }
-  }
+  document.getElementById('second-hand').style.transform = `translateX(-50%) rotate(${secDeg}deg)`;
+  document.getElementById('minute-hand').style.transform = `translateX(-50%) rotate(${minDeg}deg)`;
+  document.getElementById('hour-hand').style.transform = `translateX(-50%) rotate(${hourDeg}deg)`;
+}
 
-  setInterval(updateClock, 1000);
-  updateClock();
-  // === CLOCK SECTION END ===
+setInterval(updateClocks, 1000);
+updateClocks();
 
-  // ... rest of your existing code below ...
-});
+
 
 
 
