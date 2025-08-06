@@ -10,8 +10,8 @@
   --primary-color: #4b5563; /* Gray-600 */
   --accent-color: #6366f1; /* Indigo-500 */
   --secondary-color: #a78bfa; /* Violet-400 */
-  --background-start: #d4a5e0;
-  --background-end: #f5f0d3;
+  --background-start: #f8c0e6; /* Vibrant Pink */
+  --background-end: #c4f1f9; /* Soft Cyan */
   --background-color: #f8f9fa;
   --border-color: rgba(255, 255, 255, 0.3);
   --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -83,15 +83,30 @@ body {
   50% { text-shadow: 0 0 20px rgba(100, 116, 139, 0.7), 0 0 30px rgba(100, 116, 139, 0.6); }
 }
 
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.02); opacity: 0.8; }
+}
+
 .animate-fadeIn { animation: fadeIn 1s ease-out forwards; }
 .animate-slideInFromTop { animation: slideInFromTop 1s ease-out forwards; }
 .animate-textGlow { animation: textGlow 3s ease-in-out infinite; }
 .animate-bounceOnHover { transition: transform 0.2s ease-in-out; }
 .animate-bounceOnHover:hover { transform: translateY(-3px); }
-.animate-pulse { animation: pulse 2s infinite; }
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+.animate-pulse { animation: pulse 2s ease-in-out infinite; }
+
+/* ==================== New Suspended Notice Style ==================== */
+.suspended-notice {
+    text-align: center;
+    background: linear-gradient(45deg, #fca5a5, #f87171);
+    color: #450a0a;
+    padding: 1rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.5);
+    border: 1px solid #ef4444;
 }
 
 /* ==================== Layout & Components ==================== */
