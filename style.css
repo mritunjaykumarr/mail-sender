@@ -13,7 +13,7 @@ body {
 
 .clock-container {
   text-align: center;
-  color: #fff;
+  color: red;
 }
 
 .clock {
@@ -322,3 +322,4 @@ body {
     .sm\:w-auto { width: auto; }
 
 }
+
