@@ -31,13 +31,14 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
-  overflow: hidden;
+  /* Removed overflow: hidden; to allow scrolling */
   gap: 2rem;
   padding: 2rem 1rem;
 }
 
 .background-container {
-  position: fixed;
+  /* Changed position from fixed to absolute to allow it to scroll with the page */
+  position: absolute; 
   top: 0;
   left: 0;
   width: 100%;
