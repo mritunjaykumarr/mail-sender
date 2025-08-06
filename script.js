@@ -477,23 +477,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     checkAuthStatus();
 
 });
-function updateClock() {
-  const now = new Date();
+document.addEventListener('DOMContentLoaded', async () => {
+  // ... All your existing code above ...
 
-  let hours = now.getHours();
-  const minutes = now.getMinutes().toString().padStart(2, '0');
-  const seconds = now.getSeconds().toString().padStart(2, '0');
-  const ampm = hours >= 12 ? 'PM' : 'AM';
+  // === CLOCK SECTION START ===
+  function updateClock() {
+    const now = new Date();
 
-  hours = hours % 12;
-  hours = hours ? hours : 12; // 0 becomes 12
-  hours = hours.toString().padStart(2, '0');
+    let hours = now.getHours();
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
 
-  const timeString = `${hours}:${minutes}:${seconds} ${ampm}`;
-  document.getElementById('clock').textContent = timeString;
-}
+    hours = hours % 12 || 12; // convert to 12-hour format, 0 becomes 12
+    const timeString = `${hours.toString().padStart(2, '0')}:${minutes}:${seconds} ${ampm}`;
 
-setInterval(updateClock, 1000);
-updateClock();
+    const clockEl = document.getElementById('clock');
+    if (clockEl) {
+      clockEl.textContent = timeString;
+    }
+  }
+
+  setInterval(updateClock, 1000);
+  updateClock();
+  // === CLOCK SECTION END ===
+
+  // ... rest of your existing code below ...
+});
+
 
 
