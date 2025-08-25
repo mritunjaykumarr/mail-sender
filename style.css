@@ -7,6 +7,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@400;600;700&display=swap');
 
 :root {
+  /* Light Mode Variables */
   --primary-color: #4b5563; /* Gray-600 */
   --accent-color: #6366f1; /* Indigo-500 */
   --secondary-color: #a78bfa; /* Violet-400 */
@@ -18,6 +19,21 @@
   --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
   --text-dark: #1f2937;
   --text-light: #f9fafb;
+}
+
+/* Dark Mode Variables */
+body[data-theme='dark'] {
+  --primary-color: #a78bfa;
+  --accent-color: #f8c0e6;
+  --secondary-color: #6366f1;
+  --background-start: #1e1b4b; /* Dark Purple */
+  --background-end: #312e81; /* Dark Indigo */
+  --background-color: #1f2937;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.12);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  --text-dark: #f9fafb;
+  --text-light: #1f2937;
 }
 
 body {
@@ -33,6 +49,7 @@ body {
   position: relative;
   gap: 2rem;
   padding: 2rem 1rem;
+  transition: background-color 0.5s ease;
 }
 
 .background-container {
@@ -45,6 +62,7 @@ body {
   background-size: 400% 400%;
   animation: backgroundPan 15s ease infinite;
   z-index: -2;
+  transition: background 0.5s ease;
 }
 
 .container {
@@ -58,7 +76,41 @@ body {
   width: 100%;
   max-width: 60rem;
   z-index: 1;
+  transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
 }
+
+body[data-theme='dark'] .container {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+body[data-theme='dark'] .step-card {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+body[data-theme='dark'] .clock-container {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+body[data-theme='dark'] .analog-clock .dial {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+body[data-theme='dark'] .input-field {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+body[data-theme='dark'] .quill-editor {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+body[data-theme='dark'] .ql-toolbar.ql-snow {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+body[data-theme='dark'] .status-results-section {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
 
 /* ==================== Animations ==================== */
 @keyframes backgroundPan {
@@ -106,6 +158,11 @@ body {
     margin-bottom: 2rem;
     box-shadow: 0 4px 15px rgba(239, 68, 68, 0.5);
     border: 1px solid #ef4444;
+}
+body[data-theme='dark'] .suspended-notice {
+    background: linear-gradient(45deg, #ef4444, #dc2626);
+    color: #f9fafb;
+    border: 1px solid #dc2626;
 }
 
 /* ==================== New Step-by-Step Styling ==================== */
@@ -191,10 +248,14 @@ body {
   border-radius: 3px;
   transform: translateX(-50%) rotate(0deg);
 }
+body[data-theme='dark'] .hand {
+    background: var(--text-dark);
+}
 
 .hand.hour { height: 25px; width: 4px; background: var(--accent-color); }
 .hand.minute { height: 40px; width: 3px; background: var(--accent-color); }
 .hand.second { height: 45px; width: 2px; background: #e74c3c; }
+body[data-theme='dark'] .hand.second { background: #ef4444; }
 
 .digital-clock {
   font-family: 'Inter', monospace;
@@ -464,6 +525,9 @@ body {
   height: 50px;
   animation: spin 1s cubic-bezier(0.5, 0.2, 0.5, 0.8) infinite;
 }
+body[data-theme='dark'] #loader-spinner {
+    border: 4px solid rgba(0, 0, 0, 0.5);
+}
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
@@ -491,10 +555,10 @@ body {
   border-radius: 50%;
   display: block;
   stroke-width: 2;
-  stroke: var(--btn-green);
+  stroke: #4CAF50;
   stroke-miterlimit: 10;
   margin: 0 auto;
-  box-shadow: inset 0px 0px 0px var(--btn-green);
+  box-shadow: inset 0px 0px 0px #4CAF50;
   animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
 }
 
@@ -503,7 +567,7 @@ body {
   stroke-dashoffset: 166;
   stroke-width: 2;
   stroke-miterlimit: 10;
-  stroke: var(--btn-green);
+  stroke: #4CAF50;
   fill: none;
   animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
 }
@@ -520,13 +584,43 @@ body {
 }
 
 @keyframes fill {
-  100% { box-shadow: inset 0px 0px 0px 30px var(--btn-green); }
+  100% { box-shadow: inset 0px 0px 0px 30px #4CAF50; }
 }
 
 @keyframes scale {
   0%, 100% { transform: none; }
   50% { transform: scale3d(1.1, 1.1, 1); }
 }
+
+/* 🆕 New Theme Toggle Button and its container */
+.theme-toggle-container {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+}
+.theme-toggle-btn {
+  background-color: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(5px);
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-light);
+}
+.theme-toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+body[data-theme='dark'] .theme-toggle-btn {
+  background-color: rgba(0, 0, 0, 0.4);
+  color: white;
+}
+body[data-theme='dark'] .theme-toggle-btn:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
 
 /* Utility classes to manage visibility */
 .hidden { display: none !important; }
