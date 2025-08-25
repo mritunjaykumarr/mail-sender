@@ -33,8 +33,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     const modalMessage = customModal ? document.getElementById('modal-message') : null;
     const modalCloseBtn = customModal ? document.getElementById('modal-close-btn') : null;
 
+    // 🆕 New DOM elements for theme toggle
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const themeIcon = document.getElementById('theme-icon');
+
     let quill; // Quill editor instance
     let statusPollingInterval; // Interval for status polling
+
+    // --- Theme Toggle Logic ---
+    function applySavedTheme() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.dataset.theme = savedTheme;
+        updateThemeIcon(savedTheme);
+    }
+    
+    function updateThemeIcon(theme) {
+        if (themeIcon) {
+            themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+    }
+    
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            const currentTheme = document.body.dataset.theme;
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.body.dataset.theme = newTheme;
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        });
+    }
+    
+    // Apply the saved theme on initial load
+    applySavedTheme();
 
     // --- Modal Functions (Replaces native alerts) ---
     function showMessage(title, message) {
