@@ -1,56 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Bulk Mail Sender - About Us</title>
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us - Bulk Mail Sender</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Aesthetic Gradient Background */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .main-header {
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      padding: 15px 40px;
+      display: flex;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 1200px;
+    }
+    .logo-and-name {
+      display: flex;
+      align-items: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .header-logo {
+      width: 36px;
+      height: 36px;
+      margin-right: 10px;
+      stroke: #ffdf5d;
+    }
+    .site-name {
+      color: #ffdf5d;
+    }
+    .main-nav a {
+      margin-left: 20px;
+      text-decoration: none;
+      color: #fff;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+    .main-nav a:hover,
+    .main-nav a.active {
+      color: #ffdf5d;
+    }
+
+    /* Content */
+    .content-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 60px 20px;
+    }
+    .page-content {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 20px;
+      max-width: 800px;
+      text-align: center;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      animation: fadeIn 1.2s ease-in-out;
+    }
+    .page-content h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #ffdf5d;
+    }
+    .page-content p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin: 10px 0;
+    }
+
+    /* Footer */
+    .main-footer {
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(6px);
+      text-align: center;
+      padding: 20px;
+      font-size: 0.9rem;
+      color: #ddd;
+    }
+    .footer-links {
+      margin-top: 10px;
+    }
+    .footer-links a {
+      margin: 0 10px;
+      color: #ffdf5d;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+  </style>
 </head>
-<body class="aesthetic-body" data-theme="light">
+<body>
 
-    <!-- Header Section -->
-    <header class="main-header">
-        <div class="header-container">
-            <div class="logo-and-name">
-                <svg xmlns="http://www.w3.org/2000/svg" class="header-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                    <polyline points="22,6 12,13 2,6"></polyline>
-                </svg>
-                <span class="site-name">Bulk Mail Sender</span>
-            </div>
-            <nav class="main-nav">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="about.html" class="nav-link active">About</a>
-                <a href="privacy.html" class="nav-link">Privacy Policy</a>
-                <a href="contact.html" class="nav-link">Contact</a>
-            </nav>
-        </div>
-    </header>
+  <!-- Header Section -->
+  <header class="main-header">
+    <div class="header-container">
+      <div class="logo-and-name">
+        📧 <span class="site-name">Bulk Mail Sender</span>
+      </div>
+      <nav class="main-nav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="about.html" class="nav-link active">About</a>
+        <a href="policy.html" class="nav-link">Privacy Policy</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
+    </div>
+  </header>
 
-    <!-- Main Content -->
-    <main class="content-container">
-        <section id="about" class="page-content">
-            <h1>About Us</h1>
-            <p>Welcome to **Bulk Mail Sender**, a simple and efficient tool designed to help you send emails in bulk with ease. Our mission is to provide a secure and reliable platform for personal and small business communication.</p>
-            <p>This application was developed and is maintained by:</p>
-            <p><strong>Owner:</strong> Mritunjay Kumar</p>
-            <p><strong>Support Email:</strong> mritunjaykumarstm2013@gmail.com</p>
-            <p>Our app focuses on user privacy and simplicity, ensuring that your data is handled with care and that you can get your message out quickly and securely.</p>
-        </section>
-    </main>
+  <!-- Main Content -->
+  <main class="content-container">
+    <section id="about" class="page-content">
+      <h1>About Us</h1>
+      <p>Welcome to <strong>Bulk Mail Sender</strong>, a simple and efficient tool designed to help you send emails in bulk with ease. Our mission is to provide a <span style="color:#ffdf5d;">secure</span> and <span style="color:#ffdf5d;">reliable</span> platform for personal and small business communication.</p>
+      <p>This application was developed and is maintained by:</p>
+      <p><strong>Owner:</strong> Mritunjay Kumar</p>
+      <p><strong>Support Email:</strong> mritunjaykumarstm2013@gmail.com</p>
+      <p>We focus on <em>user privacy</em> and <em>simplicity</em>, ensuring that your data is handled with care and that you can get your message out quickly and securely.</p>
+    </section>
+  </main>
 
-    <!-- Footer Section -->
-    <footer class="main-footer">
-        <div class="footer-container">
-            <p>Published: June 2025</p>
-            <p>&copy; 2023 Bulk Mail Sender. All rights reserved.</p>
-            <div class="footer-links">
-                <a href="index.html" class="footer-link">Home</a>
-                <a href="about.html" class="footer-link">About</a>
-                <a href="privacy.html" class="footer-link">Privacy Policy</a>
-                <a href="contact.html" class="footer-link">Contact</a>
-            </div>
-        </div>
-    </footer>
+  <!-- Footer Section -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <p>Published: June 2025</p>
+      <p>&copy; 2025 Bulk Mail Sender. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="index.html" class="footer-link">Home</a>
+        <a href="about.html" class="footer-link">About</a>
+        <a href="policy.html" class="footer-link">Privacy Policy</a>
+        <a href="contact.html" class="footer-link">Contact</a>
+      </div>
+    </div>
+  </footer>
+
 </body>
 </html>
