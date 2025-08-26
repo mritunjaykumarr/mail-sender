@@ -557,7 +557,7 @@ body[data-theme='dark'] #loader-spinner {
   stroke: #4CAF50;
   stroke-miterlimit: 10;
   margin: 0 auto;
-  box-shadow: inset 0px 0px 0px #4CAF50;
+  box-shadow: inset 0px 0px 0px 30px #4CAF50;
   animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
 }
 
@@ -623,3 +623,132 @@ body[data-theme='dark'] .theme-toggle-btn:hover {
 
 /* Utility classes to manage visibility */
 .hidden { display: none !important; }
+
+/* ==================== Custom Header & Footer Styles ==================== */
+.main-header {
+  background-color: #f7fafc;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+  position: sticky; /* Make the header sticky */
+  top: 0; /* Pin it to the top of the viewport */
+  z-index: 100; /* Ensure it stays on top of other content */
+}
+
+body[data-theme='dark'] .main-header {
+  background-color: #1f2937;
+  color: #f9fafb;
+}
+
+.header-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .header-container {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+.logo-and-name {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-logo {
+  width: 30px;
+  height: 30px;
+  color: var(--accent-color);
+  stroke-width: 2.5;
+}
+
+.site-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2d3748;
+}
+
+body[data-theme='dark'] .site-name {
+  color: var(--text-dark);
+}
+
+/* New Navigation Styles */
+.main-nav {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.nav-link {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4a5568;
+  text-decoration: none;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+body[data-theme='dark'] .nav-link {
+  color: #a0aec0;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 0;
+  height: 2px;
+  background-color: var(--accent-color);
+  transition: width 0.3s ease-in-out;
+}
+
+.nav-link:hover::after, .nav-link.active::after {
+  width: 100%;
+}
+
+.nav-link:hover {
+  color: var(--accent-color);
+}
+
+/* Custom Footer Styling */
+.main-footer {
+  background-color: #2d3748;
+  color: #e2e8f0;
+  padding: 1.5rem 2rem;
+  margin-top: 3rem;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  z-index: 1;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-links {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.footer-link {
+  color: #a0aec0;
+  text-decoration: none;
+  transition: color 0.3s ease-in-out;
+}
+
+.footer-link:hover {
+  color: #fff;
+}
