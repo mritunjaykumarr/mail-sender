@@ -1,59 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Bulk Mail Sender - Privacy Policy</title>
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Privacy Policy - Bulk Mail Sender</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Aesthetic Gradient Background */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .main-header {
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      padding: 15px 40px;
+      display: flex;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 1200px;
+    }
+    .logo-and-name {
+      display: flex;
+      align-items: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .site-name {
+      margin-left: 8px;
+      color: #ffdf5d;
+    }
+    .main-nav a {
+      margin-left: 20px;
+      text-decoration: none;
+      color: #fff;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+    .main-nav a:hover,
+    .main-nav a.active {
+      color: #ffdf5d;
+    }
+
+    /* Content */
+    .content-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 60px 20px;
+    }
+    .page-content {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 20px;
+      max-width: 850px;
+      width: 100%;
+      text-align: left;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      animation: fadeIn 1.2s ease-in-out;
+    }
+    .page-content h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #ffdf5d;
+      text-align: center;
+    }
+    .page-content h2 {
+      margin-top: 25px;
+      color: #ffdf5d;
+      font-size: 1.5rem;
+    }
+    .page-content p {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin: 10px 0;
+    }
+
+    /* Footer */
+    .main-footer {
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(6px);
+      text-align: center;
+      padding: 20px;
+      font-size: 0.9rem;
+      color: #ddd;
+    }
+    .footer-links {
+      margin-top: 10px;
+    }
+    .footer-links a {
+      margin: 0 10px;
+      color: #ffdf5d;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+  </style>
 </head>
-<body class="aesthetic-body" data-theme="light">
+<body>
 
-    <!-- Header Section -->
-    <header class="main-header">
-        <div class="header-container">
-            <div class="logo-and-name">
-                <svg xmlns="http://www.w3.org/2000/svg" class="header-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                    <polyline points="22,6 12,13 2,6"></polyline>
-                </svg>
-                <span class="site-name">Bulk Mail Sender</span>
-            </div>
-            <nav class="main-nav">
-                <a href="index.html" class="nav-link">Home</a>
-                <a href="about.html" class="nav-link">About</a>
-                <a href="privacy.html" class="nav-link active">Privacy Policy</a>
-                <a href="contact.html" class="nav-link">Contact</a>
-            </nav>
-        </div>
-    </header>
+  <!-- Header Section -->
+  <header class="main-header">
+    <div class="header-container">
+      <div class="logo-and-name">
+        📧 <span class="site-name">Bulk Mail Sender</span>
+      </div>
+      <nav class="main-nav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="policy.html" class="nav-link active">Privacy Policy</a>
+        <a href="contact.html" class="nav-link">Contact</a>
+      </nav>
+    </div>
+  </header>
 
-    <!-- Main Content -->
-    <main class="content-container">
-        <section id="privacy" class="page-content">
-            <h1>Privacy Policy</h1>
-            <p>At Bulk Mail Sender, your privacy is our top priority. This policy outlines how we handle your information.</p>
-            <h2>Information We Collect</h2>
-            <p>We do not store your personal information. When you sign in with Google, we temporarily access your email address and profile information solely to authenticate your identity. We do not store, sell, or share this data.</p>
-            <p>When you upload a recipient CSV file, this data is processed in real-time to send your emails and is not stored on our servers after the process is complete.</p>
-            <h2>Data Security</h2>
-            <p>We use robust security measures to protect your information during transmission. All data is handled securely and is not retained after your session ends.</p>
-            <h2>Changes to This Policy</h2>
-            <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page.</p>
-        </section>
-    </main>
+  <!-- Main Content -->
+  <main class="content-container">
+    <section id="privacy" class="page-content">
+      <h1>Privacy Policy</h1>
+      <p>At <strong>Bulk Mail Sender</strong>, your privacy is our top priority. This policy explains how we handle and protect your information.</p>
+      
+      <h2>Information We Collect</h2>
+      <p>We do not permanently store your personal information. When you sign in with Google, we temporarily access your email address and profile information solely to authenticate your identity. We do not store, sell, or share this data.</p>
+      <p>If you upload a recipient CSV file, this data is processed in real-time to send your emails and is not stored on our servers after the process is complete.</p>
 
-    <!-- Footer Section -->
-    <footer class="main-footer">
-        <div class="footer-container">
-            <p>Published: June 2025</p>
-            <p>&copy; 2023 Bulk Mail Sender. All rights reserved.</p>
-            <div class="footer-links">
-                <a href="index.html" class="footer-link">Home</a>
-                <a href="about.html" class="footer-link">About</a>
-                <a href="privacy.html" class="footer-link">Privacy Policy</a>
-                <a href="contact.html" class="footer-link">Contact</a>
-            </div>
-        </div>
-    </footer>
+      <h2>Data Security</h2>
+      <p>We use robust security measures to protect your information during transmission. All data is handled securely and is not retained after your session ends.</p>
+
+      <h2>Changes to This Policy</h2>
+      <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page with the updated effective date.</p>
+    </section>
+  </main>
+
+  <!-- Footer Section -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <p>Published: June 2025</p>
+      <p>&copy; 2025 Bulk Mail Sender. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="index.html" class="footer-link">Home</a>
+        <a href="about.html" class="footer-link">About</a>
+        <a href="policy.html" class="footer-link">Privacy Policy</a>
+        <a href="contact.html" class="footer-link">Contact</a>
+      </div>
+    </div>
+  </footer>
+
 </body>
 </html>
