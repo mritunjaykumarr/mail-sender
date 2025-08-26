@@ -5,6 +5,62 @@
 
 /* ==================== Base Styles & Aesthetics ==================== */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@400;600;700&display=swap');
+/* Custom Header Styling */
+.main-header {
+  background-color: #f7fafc;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.site-name {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #2d3748;
+}
+
+.owner-name {
+  font-size: 1rem;
+  color: #4a5568;
+}
+
+/* Custom Footer Styling */
+.main-footer {
+  background-color: #2d3748;
+  color: #e2e8f0;
+  padding: 1.5rem 2rem;
+  margin-top: 3rem;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-links {
+  margin-top: 0.5rem;
+}
+
+.footer-link {
+  color: #a0aec0;
+  text-decoration: none;
+  margin: 0 1rem;
+  transition: color 0.3s ease-in-out;
+}
+
+.footer-link:hover {
+  color: #fff;
+}
 
 :root {
   /* Light Mode Variables */
@@ -624,3 +680,4 @@ body[data-theme='dark'] .theme-toggle-btn:hover {
 
 /* Utility classes to manage visibility */
 .hidden { display: none !important; }
+
