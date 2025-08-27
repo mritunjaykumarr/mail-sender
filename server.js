@@ -6,6 +6,7 @@
 require('dotenv').config();
 
 const express = require('express');
+const path = require('path');
 const cors = require('cors'); // Import CORS middleware
 const { google } = require('googleapis');
 const multer = require('multer');
@@ -36,9 +37,11 @@ app.use(cors({
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
 
-// Google OAuth2 client setup
+// ✅ Serve static files (HTML, CSS, JS, Google verification, etc.)
+app.use(express.static(__dirname));
+
+// --- Google OAuth setup ---
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
@@ -220,10 +223,7 @@ async function sendEmail(auth, to, subject, htmlBody) {
   });
 }
 
-// Start the server
+// --- Start the server ---
 app.listen(PORT, () => {
   console.log(`🚀 Server listening at http://localhost:${PORT}`);
 });
-
-
-
