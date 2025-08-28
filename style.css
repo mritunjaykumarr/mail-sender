@@ -174,7 +174,10 @@ body[data-theme='dark'] .suspended-notice {
   position: relative;
   padding-left: 5rem;
 }
-
+.img-logoo{
+  height:50px;
+  width:50px:
+}
 .step-title {
   font-size: 1.5rem;
   font-weight: 700;
@@ -752,4 +755,5 @@ body[data-theme='dark'] .nav-link {
 .footer-link:hover {
   color: #fff;
 }
+
 
