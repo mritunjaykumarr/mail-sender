@@ -79,6 +79,7 @@
         <b>Data Usage Transparency:</b> When you sign in with Google, we securely request permission to <b>send emails on your behalf</b>. This is the only user data we access and it is used solely for the purpose of sending your bulk emails as instructed. We <b>do not</b> store your email content, recipient lists, or any other personal data on our servers. All information is processed in real-time and immediately deleted after the task is completed. Your privacy is our top priority.
       </p>
 
+      <!-- 🆕 START: Inlined Privacy Policy Section -->
       <div style="
         text-align: center;
         margin: 30px auto;
@@ -128,6 +129,8 @@
           ">Privacy Policy</a>.
         </p>
       </div>
+      <!-- 🆕 END: Inlined Privacy Policy Section -->
+
       <h2 class="step-title">Step 1: Sign In with Google</h2>
       <p class="step-instruction">Click the button below to sign in and securely connect your account.</p>
       <div id="auth-section" class="auth-section">
@@ -143,8 +146,9 @@
         <div id="user-info" class="hidden user-info-row">
           <div class="user-details">
             <p class="welcome-text">
-              Welcome, <span id="user-name" class="user-name"></span> (<span id="user-email"></span>)
+              Welcome, <span id="user-name" class="user-name"></span>
             </p>
+            <img id="user-profile-pic" class="user-profile-pic hidden" alt="User Profile Picture" />
           </div>
           <button id="logout-btn" class="btn btn-red animate-bounceOnHover">Logout</button>
         </div>
