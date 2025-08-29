@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- DOM Elements ---
     const googleSigninBtn = document.getElementById('google-signin-btn');
     const userInfoDiv = document.getElementById('user-info');
+    const userNameSpan = document.getElementById('user-name'); // Updated to include user name
     const userEmailSpan = document.getElementById('user-email');
     const logoutBtn = document.getElementById('logout-btn');
     const authStatusMessage = document.getElementById('auth-status-message');
@@ -113,7 +114,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (data.isAuthenticated) {
                 if (googleSigninBtn) googleSigninBtn.classList.add('hidden');
                 if (userInfoDiv) userInfoDiv.classList.remove('hidden');
+                
+                // Updated to show both name and email
+                if (userNameSpan) userNameSpan.textContent = data.userName || data.userEmail;
                 if (userEmailSpan) userEmailSpan.textContent = data.userEmail;
+                
                 if (mailComposerSection) mailComposerSection.classList.remove('hidden');
                 if (authStatusMessage) authStatusMessage.textContent = 'You are signed in.';
             } else {
