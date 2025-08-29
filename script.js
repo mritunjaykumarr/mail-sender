@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const googleSigninBtn = document.getElementById('google-signin-btn');
     const userInfoDiv = document.getElementById('user-info');
     const userNameSpan = document.getElementById('user-name'); // Updated to include user name
-    const userEmailSpan = document.getElementById('user-email');
     const userProfilePic = document.getElementById('user-profile-pic');
     const logoutBtn = document.getElementById('logout-btn');
     const authStatusMessage = document.getElementById('auth-status-message');
@@ -116,10 +115,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (googleSigninBtn) googleSigninBtn.classList.add('hidden');
                 if (userInfoDiv) userInfoDiv.classList.remove('hidden');
                 
-                // Show only the user's name
-                if (userNameSpan) userNameSpan.textContent = data.userName;
-                // Hide the user's email since it's redundant
-                if (userEmailSpan) userEmailSpan.classList.add('hidden');
+                // Show the user's name
+                if (userNameSpan) userNameSpan.textContent = data.userName || data.userEmail;
                 
                 // Display the user's profile picture if the URL exists
                 if (userProfilePic && data.userPicture) {
