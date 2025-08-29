@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const userInfoDiv = document.getElementById('user-info');
     const userNameSpan = document.getElementById('user-name'); // Updated to include user name
     const userEmailSpan = document.getElementById('user-email');
+    const userProfilePic = document.getElementById('user-profile-pic');
     const logoutBtn = document.getElementById('logout-btn');
     const authStatusMessage = document.getElementById('auth-status-message');
 
@@ -115,10 +116,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (googleSigninBtn) googleSigninBtn.classList.add('hidden');
                 if (userInfoDiv) userInfoDiv.classList.remove('hidden');
                 
-                // Show only the name.
-                if (userNameSpan) userNameSpan.textContent = data.userName || data.userEmail;
-                // Keep the email in its dedicated span, but it will no longer be in the primary message.
-                if (userEmailSpan) userEmailSpan.textContent = data.userEmail;
+                // Show only the user's name
+                if (userNameSpan) userNameSpan.textContent = data.userName;
+                // Hide the user's email since it's redundant
+                if (userEmailSpan) userEmailSpan.classList.add('hidden');
+                
+                // Display the user's profile picture if the URL exists
+                if (userProfilePic && data.userPicture) {
+                    userProfilePic.src = data.userPicture;
+                    userProfilePic.classList.remove('hidden');
+                } else if (userProfilePic) {
+                    userProfilePic.classList.add('hidden');
+                }
                 
                 if (mailComposerSection) mailComposerSection.classList.remove('hidden');
                 if (authStatusMessage) authStatusMessage.textContent = 'You are signed in.';
