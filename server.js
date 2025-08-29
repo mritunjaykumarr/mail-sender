@@ -28,7 +28,7 @@ if (
 }
 
 // CORS configuration - replace FRONTEND_URL with your frontend app URL or set it via environment variable
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://mail-sender-ecru.vercel.app';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://bulkmailsender.online';
 app.use(cors({
   origin: FRONTEND_URL,
   credentials: true,
@@ -227,3 +227,4 @@ async function sendEmail(auth, to, subject, htmlBody) {
 app.listen(PORT, () => {
   console.log(`🚀 Server listening at http://localhost:${PORT}`);
 });
+
