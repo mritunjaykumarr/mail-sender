@@ -1,54 +1,60 @@
 // IMPORTANT:
-// To resolve the 'Error: Cannot find module 'cors'', run:
-// npm install cors
-// Also ensure 'cors' is listed in your package.json dependencies.
+// Before running, ensure you have the required packages installed:
+// npm install express cors googleapis multer csv-parser dotenv
+// And ensure your .env file is configured correctly.
 
 require('dotenv').config();
 
 const express = require('express');
 const path = require('path');
-const cors = require('cors'); // Import CORS middleware
+const cors = require('cors');
 const { google } = require('googleapis');
 const multer = require('multer');
 const csv = require('csv-parser');
-const { Readable } = require('stream');
+const { Readable } = require = require('stream');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Validate required Google OAuth environment variables before initializing client
+// --- Validate environment variables ---
 if (
   !process.env.GOOGLE_CLIENT_ID ||
   !process.env.GOOGLE_CLIENT_SECRET ||
-  !process.env.GOOGLE_REDIRECT_URI
+  !process.env.GOOGLE_REDIRECT_URI ||
+  !process.env.FRONTEND_URL
 ) {
-  console.error('ERROR: Missing required Google OAuth environment variables.');
-  console.error('Please ensure GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REDIRECT_URI are set.');
+  console.error('ERROR: Missing required environment variables.');
+  console.error('Please ensure GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI, and FRONTEND_URL are set.');
   process.exit(1);
 }
 
-// CORS configuration - replace FRONTEND_URL with your frontend app URL or set it via environment variable
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://mail-sender-ecru.vercel.app';
+const FRONTEND_URL = process.env.FRONTEND_URL;
+const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI;
+
+// --- CORS configuration ---
 app.use(cors({
   origin: FRONTEND_URL,
   credentials: true,
 }));
 
-// Middleware
+// --- Middleware ---
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Serve static files (HTML, CSS, JS, Google verification, etc.)
-app.use(express.static(__dirname));
+// --- Serve static files from a dedicated 'public' directory ---
+// Create a 'public' folder and place your HTML, CSS, JS, and Google verification file inside.
+app.use(express.static(path.join(__dirname, 'public')));
 
 // --- Google OAuth setup ---
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI
+  GOOGLE_REDIRECT_URI // Using the configured redirect URI
 );
 
-let userTokens = {}; // Stores tokens per userId
+// Stores tokens per userId. WARNING: This is for single-user testing only.
+// For production, use a proper session management system.
+let userTokens = {}; 
 
 let emailCampaignStatus = {
   total: 0,
@@ -59,8 +65,6 @@ let emailCampaignStatus = {
 };
 
 // --- Google OAuth routes ---
-
-// Redirect to Google OAuth consent screen
 app.get('/auth/google', (req, res) => {
   const scopes = [
     'https://www.googleapis.com/auth/userinfo.email',
@@ -77,9 +81,12 @@ app.get('/auth/google', (req, res) => {
   res.redirect(authUrl);
 });
 
-// OAuth2 callback route
 app.get('/oauth2callback', async (req, res) => {
   const { code } = req.query;
+
+  if (!code) {
+    return res.status(400).send('Authorization code missing.');
+  }
 
   try {
     const { tokens } = await oauth2Client.getToken(code);
@@ -94,7 +101,7 @@ app.get('/oauth2callback', async (req, res) => {
       email: userInfo.data.email,
     };
 
-    // Redirect to frontend root after successful auth
+    // Redirect to the frontend after successful authentication
     res.redirect(FRONTEND_URL);
   } catch (error) {
     console.error('OAuth callback error:', error.message);
@@ -109,14 +116,12 @@ app.get('/api/auth/status', (req, res) => {
   res.json({ isAuthenticated, userEmail });
 });
 
-// Logout and clear tokens
 app.post('/api/auth/logout', (req, res) => {
   userTokens = {};
   res.json({ message: 'Logged out successfully.' });
 });
 
 // --- File upload and email sending ---
-
 const upload = multer();
 
 app.post('/api/send-emails', upload.single('csvFile'), async (req, res) => {
@@ -129,7 +134,6 @@ app.post('/api/send-emails', upload.single('csvFile'), async (req, res) => {
   oauth2Client.setCredentials(userTokens[userId]);
 
   const { subject, emailBody } = req.body;
-
   if (!subject || !emailBody || !req.file) {
     return res.status(400).json({ message: 'Missing required fields.' });
   }
@@ -158,12 +162,15 @@ app.post('/api/send-emails', upload.single('csvFile'), async (req, res) => {
         message: `Sending ${recipients.length} emails...`,
       };
 
-      res.json({ message: `Started sending ${recipients.length} emails.` });
+      // Acknowledge the request immediately
+      res.status(202).json({ message: 'Started sending emails. Check status endpoint for progress.' });
 
+      // Process emails in the background
       for (let i = 0; i < recipients.length; i++) {
         const to = recipients[i];
         try {
-          await new Promise((resolve) => setTimeout(resolve, 500)); // Delay between emails
+          // A more robust rate limit can be implemented here
+          await new Promise((resolve) => setTimeout(resolve, 500)); 
           await sendEmail(oauth2Client, to, subject, emailBody);
           emailCampaignStatus.sent++;
         } catch (err) {
@@ -179,27 +186,22 @@ app.post('/api/send-emails', upload.single('csvFile'), async (req, res) => {
     })
     .on('error', (err) => {
       console.error('CSV parsing error:', err.message);
-      res.status(500).json({ message: 'Error parsing CSV file.' });
+      // Since response was already sent, this error won't be sent to client
     });
 });
 
-// Get current status of the email campaign
 app.get('/api/status', (req, res) => {
   res.json(emailCampaignStatus);
 });
 
 // --- Helper functions ---
-
-// Simple email validation regex
 function validateEmail(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return re.test(email);
 }
 
-// Function to send an email using Gmail API
 async function sendEmail(auth, to, subject, htmlBody) {
   const gmail = google.gmail({ version: 'v1', auth });
-
   const rawMessage = [
     `To: ${to}`,
     `Subject: ${subject}`,
@@ -225,5 +227,5 @@ async function sendEmail(auth, to, subject, htmlBody) {
 
 // --- Start the server ---
 app.listen(PORT, () => {
-  console.log(`🚀 Server listening at http://localhost:${PORT}`);
+  console.log(`🚀 Server listening on port ${PORT}`);
 });
