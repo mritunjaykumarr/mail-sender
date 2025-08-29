@@ -115,8 +115,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (googleSigninBtn) googleSigninBtn.classList.add('hidden');
                 if (userInfoDiv) userInfoDiv.classList.remove('hidden');
                 
-                // Updated to show both name and email
+                // Show only the name.
                 if (userNameSpan) userNameSpan.textContent = data.userName || data.userEmail;
+                // Keep the email in its dedicated span, but it will no longer be in the primary message.
                 if (userEmailSpan) userEmailSpan.textContent = data.userEmail;
                 
                 if (mailComposerSection) mailComposerSection.classList.remove('hidden');
