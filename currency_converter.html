@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Currency Converter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-group img, .input-group select {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .input-group:hover img {
+            transform: scale(1.1);
+        }
+
+        .button-animation {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .msg-enter-active {
+            animation: bounceIn 0.6s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        .loading-animation {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="container bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-gray-800 text-center mb-6">Currency Converter</h1>
+        <p class="text-sm text-gray-500 text-center mb-8">Get live exchange rates instantly</p>
+        
+        <div class="space-y-6">
+            <div class="relative">
+                <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Enter Amount</label>
+                <input type="number" id="amount" placeholder="e.g., 100" min="0" class="w-full p-3 pl-4 pr-10 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out text-lg">
+                <span class="absolute right-4 top-1/2 -mt-1 text-gray-400"></span>
+            </div>
+            
+            <div class="flex flex-col md:flex-row items-center justify-between space-y-6 md:space-y-0 md:space-x-4">
+                
+                <!-- From Currency -->
+                <div class="flex-1 w-full relative">
+                    <label for="from-currency" class="block text-sm font-medium text-gray-700 mb-1">From</label>
+                    <div class="input-group flex items-center bg-gray-50 border border-gray-300 rounded-xl p-2 focus-within:ring-2 focus-within:ring-blue-500 transition duration-300 ease-in-out">
+                        <img id="from-flag" src="https://flagsapi.com/US/flat/64.png" alt="From Flag" class="w-10 h-10 rounded-full border-2 border-white shadow-sm mr-3">
+                        <select id="from-currency" class="flex-1 bg-transparent border-none text-lg text-gray-800 font-medium cursor-pointer focus:outline-none focus:ring-0 appearance-none">
+                            <option value="USD">USD</option>
+                            <option value="INR">INR</option>
+                            <option value="EUR">EUR</option>
+                            <option value="JPY">JPY</option>
+                            <option value="GBP">GBP</option>
+                            <option value="AUD">AUD</option>
+                            <option value="CAD">CAD</option>
+                            <option value="CHF">CHF</option>
+                            <option value="CNY">CNY</option>
+                            <option value="SEK">SEK</option>
+                            <option value="NZD">NZD</option>
+                            <option value="MXN">MXN</option>
+                            <option value="SGD">SGD</option>
+                            <option value="HKD">HKD</option>
+                            <option value="NOK">NOK</option>
+                            <option value="KRW">KRW</option>
+                            <option value="TRY">TRY</option>
+                            <option value="RUB">RUB</option>
+                            <option value="BRL">BRL</option>
+                            <option value="ZAR">ZAR</option>
+                            <option value="AED">AED</option>
+                            <option value="SAR">SAR</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Arrow Icon -->
+                <div class="flex-shrink-0 text-gray-500 mb-4 md:mb-0 transform rotate-90 md:rotate-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-8 h-8">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                </div>
+
+                <!-- To Currency -->
+                <div class="flex-1 w-full relative">
+                    <label for="to-currency" class="block text-sm font-medium text-gray-700 mb-1">To</label>
+                    <div class="input-group flex items-center bg-gray-50 border border-gray-300 rounded-xl p-2 focus-within:ring-2 focus-within:ring-blue-500 transition duration-300 ease-in-out">
+                        <img id="to-flag" src="https://flagsapi.com/IN/flat/64.png" alt="To Flag" class="w-10 h-10 rounded-full border-2 border-white shadow-sm mr-3">
+                        <select id="to-currency" class="flex-1 bg-transparent border-none text-lg text-gray-800 font-medium cursor-pointer focus:outline-none focus:ring-0 appearance-none">
+                            <option value="INR">INR</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="JPY">JPY</option>
+                            <option value="GBP">GBP</option>
+                            <option value="AUD">AUD</option>
+                            <option value="CAD">CAD</option>
+                            <option value="CHF">CHF</option>
+                            <option value="CNY">CNY</option>
+                            <option value="SEK">SEK</option>
+                            <option value="NZD">NZD</option>
+                            <option value="MXN">MXN</option>
+                            <option value="SGD">SGD</option>
+                            <option value="HKD">HKD</option>
+                            <option value="NOK">NOK</option>
+                            <option value="KRW">KRW</option>
+                            <option value="TRY">TRY</option>
+                            <option value="BRL">BRL</option>
+                            <option value="ZAR">ZAR</option>
+                            <option value="AED">AED</option>
+                            <option value="SAR">SAR</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message Area -->
+            <div id="message-container" class="mt-6">
+                <p id="msg" class="bg-blue-100 text-blue-700 p-4 rounded-xl font-semibold text-center hidden msg-enter-active"></p>
+            </div>
+            
+            <button id="get-rate-btn" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl text-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 transition-all duration-300 transform active:scale-95">Get Exchange Rate</button>
+            
+        </div>
+    </div>
+
+    <script>
+        // === IMPORTANT: Get your own API key for live exchange rates from https://www.exchangerate-api.com/ ===
+        // The one below is just an example and will likely not work.
+        const API_KEY = "3c877da96e753b9d12972bec";
+        const BASE_URL = `https://v6.exchangerate-api.com/v6/${API_KEY}/latest/`;
+
+        const amountInput = document.getElementById('amount');
+        const fromCurrencySelect = document.getElementById('from-currency');
+        const toCurrencySelect = document.getElementById('to-currency');
+        const getRateBtn = document.getElementById('get-rate-btn');
+        const messageDiv = document.getElementById('msg');
+        const fromFlag = document.getElementById('from-flag');
+        const toFlag = document.getElementById('to-flag');
+
+        const countryCodeToFlag = {
+            "USD": "US", "INR": "IN", "EUR": "EU", "JPY": "JP", "GBP": "GB",
+            "AUD": "AU", "CAD": "CA", "CHF": "CH", "CNY": "CN", "SEK": "SE",
+            "NZD": "NZ", "MXN": "MX", "SGD": "SG", "HKD": "HK", "NOK": "NO",
+            "KRW": "KR", "TRY": "TR", "RUB": "RU", "BRL": "BR", "ZAR": "ZA",
+            "AED": "AE", "SAR": "SA"
+        };
+
+        const updateFlags = () => {
+            const fromCode = fromCurrencySelect.value;
+            const toCode = toCurrencySelect.value;
+            const fromCountry = countryCodeToFlag[fromCode];
+            const toCountry = countryCodeToFlag[toCode];
+
+            fromFlag.src = `https://flagsapi.com/${fromCountry}/flat/64.png`;
+            toFlag.src = `https://flagsapi.com/${toCountry}/flat/64.png`;
+        };
+
+        const showMessage = (text, type = 'info') => {
+            messageDiv.textContent = text;
+            messageDiv.classList.remove('hidden', 'bg-blue-100', 'bg-red-100', 'text-blue-700', 'text-red-700');
+            
+            if (type === 'error') {
+                messageDiv.classList.add('bg-red-100', 'text-red-700');
+            } else {
+                messageDiv.classList.add('bg-blue-100', 'text-blue-700');
+            }
+
+            messageDiv.classList.add('msg-enter-active');
+            setTimeout(() => {
+                messageDiv.classList.remove('msg-enter-active');
+            }, 600);
+        };
+
+        const getExchangeRate = async () => {
+            const amount = parseFloat(amountInput.value);
+            const from = fromCurrencySelect.value;
+            const to = toCurrencySelect.value;
+
+            if (isNaN(amount) || amount <= 0) {
+                showMessage("Please enter a valid amount.", 'error');
+                return;
+            }
+
+            getRateBtn.textContent = 'Converting...';
+            getRateBtn.classList.add('button-animation');
+
+            try {
+                const response = await fetch(`${BASE_URL}${from}`);
+                const data = await response.json();
+
+                if (data.result === 'error') {
+                    showMessage(`Error: ${data['error-type']}`, 'error');
+                    return;
+                }
+
+                const rate = data.conversion_rates[to];
+                if (rate) {
+                    const convertedAmount = (amount * rate).toFixed(2);
+                    const message = `${amount} ${from} = ${convertedAmount} ${to}`;
+                    showMessage(message);
+                } else {
+                    showMessage("Could not get exchange rate. Please try again later.", 'error');
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                showMessage("An error occurred. Please check your network connection or API key.", 'error');
+            } finally {
+                getRateBtn.textContent = 'Get Exchange Rate';
+                getRateBtn.classList.remove('button-animation');
+            }
+        };
+
+        // Event Listeners
+        getRateBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            getExchangeRate();
+        });
+
+        fromCurrencySelect.addEventListener('change', updateFlags);
+        toCurrencySelect.addEventListener('change', updateFlags);
+        
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            updateFlags();
+            showMessage('Select currencies and click "Get Exchange Rate".');
+        });
+        
+    </script>
+</body>
+</html>
